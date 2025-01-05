@@ -23,3 +23,12 @@ Projeto adaptado para docker, inclusive já tem uma imagem pública no docker hu
 ## Exemplo com Curl
 - curl -X POST -H "Content-Type: application/json" -d '{"url": **"LINK_VIDEO"**}' http://localhost:5000/download/audio⁠ -O
 - curl -X POST -H "Content-Type: application/json" -d '{"url": **"LINK_VIDEO"**}' http://localhost:5000/download/video⁠ -O
+
+## Usando proxy
+Caso queira usar um proxy socks5 nos downloads
+crie um arquivo `.env` na raiz do projeto e adicione a string do proxy como no exemplo abaixo:
+```
+PROXY="socks5://user:senha@IP-DO-PROXY:PORTA"
+```
+
+ou adicione esse env como parametro na criação do container docker
