@@ -49,6 +49,8 @@ def download_audio():
     if not url:
         return jsonify({"error": "URL não fornecida"}), 400
 
+    print('/audio', url)
+
     try:
         options = {
             "format": "bestaudio/best",
@@ -76,6 +78,8 @@ def download_video():
     url = data.get("url")
     if not url:
         return jsonify({"error": "URL não fornecida"}), 400
+
+    print('/video', url)
 
     try:
         options = {
