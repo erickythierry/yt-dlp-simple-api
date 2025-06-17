@@ -9,7 +9,7 @@ load_dotenv()
 
 app = Flask(__name__)
 DOWNLOAD_DIR = "downloads"
-SOCKS5_PROXY = os.getenv('PROXY')
+PROXY = os.getenv('PROXY')
 
 # Garante que a pasta de downloads exista
 os.makedirs(DOWNLOAD_DIR, exist_ok=True)
@@ -58,9 +58,9 @@ def download_audio():
             "noplaylist": True,
         }
 
-        if SOCKS5_PROXY:
-            print("usando proxy")
-            options["proxy"] = SOCKS5_PROXY
+        # if PROXY:
+        #     print("usando proxy")
+        #     options["proxy"] = PROXY
 
         file_path = download_media(url, options)
         file_name = os.path.basename(file_path)
@@ -89,9 +89,9 @@ def download_video():
             "noplaylist": True,
         }
 
-        if SOCKS5_PROXY:
-            print("usando proxy")
-            options["proxy"] = SOCKS5_PROXY
+        # if PROXY:
+        #     print("usando proxy")
+        #     options["proxy"] = PROXY
 
         file_path = download_media(url, options)
         file_name = os.path.basename(file_path)
@@ -100,7 +100,6 @@ def download_video():
         return jsonify({"file": download_url})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
 
 @app.route('/files/<path:filename>', methods=['GET'])
 def serve_file(filename):
