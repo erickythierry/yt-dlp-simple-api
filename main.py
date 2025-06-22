@@ -58,9 +58,9 @@ def download_audio():
             "noplaylist": True,
         }
 
-        # if PROXY:
-        #     print("usando proxy")
-        #     options["proxy"] = PROXY
+        if PROXY:
+            print("usando proxy")
+            options["proxy"] = PROXY
 
         file_path = download_media(url, options)
         file_name = os.path.basename(file_path)
@@ -89,9 +89,9 @@ def download_video():
             "noplaylist": True,
         }
 
-        # if PROXY:
-        #     print("usando proxy")
-        #     options["proxy"] = PROXY
+        if PROXY:
+            print("usando proxy")
+            options["proxy"] = PROXY
 
         file_path = download_media(url, options)
         file_name = os.path.basename(file_path)
