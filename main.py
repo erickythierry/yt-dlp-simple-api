@@ -56,6 +56,11 @@ def download_audio():
             "format": "bestaudio/best",
             "outtmpl": f"{DOWNLOAD_DIR}/{uuid.uuid4()}.%(ext)s",
             "noplaylist": True,
+            "postprocessors": [{
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "192",
+            }],
         }
 
         if PROXY:
@@ -63,6 +68,8 @@ def download_audio():
             options["proxy"] = PROXY
 
         file_path = download_media(url, options)
+        # Garante que o arquivo final seja .mp3
+        file_path = os.path.splitext(file_path)[0] + ".mp3"
         file_name = os.path.basename(file_path)
         download_url = url_for(
             'serve_file', filename=file_name, _external=True)
