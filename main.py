@@ -61,6 +61,10 @@ def download_audio():
                 "preferredcodec": "mp3",
                 "preferredquality": "192",
             }],
+            "js_runtimes": {
+                "deno": {}
+            },
+            "remote_components": ["ejs:github"],
         }
 
         if PROXY:
@@ -94,6 +98,10 @@ def download_video():
             "outtmpl": f"{DOWNLOAD_DIR}/{uuid.uuid4()}.%(ext)s",
             "merge_output_format": "mp4",
             "noplaylist": True,
+            "js_runtimes": {
+                "deno": {}  # usa o deno do PATH
+            },
+            "remote_components": ["ejs:github"],
         }
 
         if PROXY:
