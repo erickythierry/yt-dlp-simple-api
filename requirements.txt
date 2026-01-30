@@ -1,4 +1,4 @@
 Flask==3.0
-yt-dlp==2025.11.12
+yt-dlp
 python-dotenv==1.0.1
 yt-dlp-ejs==0.3.1
