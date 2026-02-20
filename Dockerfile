@@ -2,7 +2,6 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Instalar dependências necessárias para o Deno + ffmpeg
 RUN apt update && apt install -y \
     ffmpeg \
     curl \
@@ -10,12 +9,17 @@ RUN apt update && apt install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar Deno via script oficial
-RUN curl -fsSL https://deno.land/install.sh | sh
-
-# Adicionar o Deno ao PATH
-ENV DENO_INSTALL=/root/.deno
-ENV PATH="${DENO_INSTALL}/bin:${PATH}"
+RUN ARCH=$(dpkg --print-architecture) && \
+    case "$ARCH" in \
+      amd64) DENO_ARCH="x86_64-unknown-linux-gnu" ;; \
+      arm64) DENO_ARCH="aarch64-unknown-linux-gnu" ;; \
+      *) echo "Arquitetura não suportada: $ARCH" && exit 1 ;; \
+    esac && \
+    curl -fsSL "https://github.com/denoland/deno/releases/latest/download/deno-${DENO_ARCH}.zip" \
+    -o deno.zip \
+    && unzip deno.zip \
+    && mv deno /usr/local/bin/deno \
+    && rm deno.zip
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
@@ -26,5 +30,4 @@ RUN chmod +x start.sh
 
 EXPOSE 5000
 
-# CMD ["python", "main.py"]
 CMD ["sh", "start.sh"]
