@@ -52,18 +52,12 @@ def download_audio():
     print('/audio', url)
 
     try:
+        # M4A qualidade média, sem ffmpeg (download direto)
         options = {
-            "format": "bestaudio/best",
+            "format": "bestaudio[ext=m4a]/bestaudio",
             "outtmpl": f"{DOWNLOAD_DIR}/{uuid.uuid4()}.%(ext)s",
             "noplaylist": True,
-            "postprocessors": [{
-                "key": "FFmpegExtractAudio",
-                "preferredcodec": "mp3",
-                "preferredquality": "192",
-            }],
-            "js_runtimes": {
-                "deno": {}
-            },
+            "js_runtimes": {"deno": {}},
             "remote_components": ["ejs:github"],
         }
 
@@ -72,11 +66,8 @@ def download_audio():
             options["proxy"] = PROXY
 
         file_path = download_media(url, options)
-        # Garante que o arquivo final seja .mp3
-        file_path = os.path.splitext(file_path)[0] + ".mp3"
         file_name = os.path.basename(file_path)
-        download_url = url_for(
-            'serve_file', filename=file_name, _external=True)
+        download_url = url_for("serve_file", filename=file_name, _external=True)
         return jsonify({"file": download_url})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -93,14 +84,19 @@ def download_video():
     print('/video', url)
 
     try:
+        # MP4 H264; 720p primeiro, depois 480p; merge só em último caso
         options = {
-            "format": "bestvideo[height<=720]",
-            "outtmpl": f"{DOWNLOAD_DIR}/{uuid.uuid4()}.%(ext)s",
+            "format": (
+                "best[ext=mp4][vcodec^=avc][height=720]"
+                "/best[ext=mp4][vcodec^=avc][height=480]"
+                "/best[ext=mp4][vcodec^=avc]"
+                # Último recurso: vídeo sem áudio + áudio separado (usa ffmpeg para merge)
+                "/bestvideo[ext=mp4][vcodec^=avc][height<=720]+bestaudio[ext=m4a]"
+            ),
             "merge_output_format": "mp4",
+            "outtmpl": f"{DOWNLOAD_DIR}/{uuid.uuid4()}.%(ext)s",
             "noplaylist": True,
-            "js_runtimes": {
-                "deno": {}  # usa o deno do PATH
-            },
+            "js_runtimes": {"deno": {}},
             "remote_components": ["ejs:github"],
         }
 
@@ -110,8 +106,7 @@ def download_video():
 
         file_path = download_media(url, options)
         file_name = os.path.basename(file_path)
-        download_url = url_for(
-            'serve_file', filename=file_name, _external=True)
+        download_url = url_for("serve_file", filename=file_name, _external=True)
         return jsonify({"file": download_url})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -124,4 +119,4 @@ def serve_file(filename):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0")
+    app.run(debug=True, host="0.0.0.0", use_reloader=False)
