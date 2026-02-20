@@ -1,29 +1,32 @@
+# -------- STAGE 1: Deno binário oficial --------
+FROM denoland/deno:bin-1.42.4 AS deno
+
+# -------- STAGE 2: Python app --------
 FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN apt update && apt install -y \
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Dependências de sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     curl \
     unzip \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-RUN ARCH=$(dpkg --print-architecture) && \
-    case "$ARCH" in \
-      amd64) DENO_ARCH="x86_64-unknown-linux-gnu" ;; \
-      arm64) DENO_ARCH="aarch64-unknown-linux-gnu" ;; \
-      *) echo "Arquitetura não suportada: $ARCH" && exit 1 ;; \
-    esac && \
-    curl -fsSL "https://github.com/denoland/deno/releases/latest/download/deno-${DENO_ARCH}.zip" \
-    -o deno.zip \
-    && unzip deno.zip \
-    && mv deno /usr/local/bin/deno \
-    && rm deno.zip
+# Copia apenas o binário do Deno
+COPY --from=deno /deno /usr/local/bin/deno
 
+# Garante permissão de execução
+RUN chmod +x /usr/local/bin/deno && deno --version
+
+# Python deps
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Código da aplicação
 COPY . .
 
 RUN chmod +x start.sh
